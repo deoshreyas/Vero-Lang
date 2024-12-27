@@ -5,7 +5,8 @@ A programming language created using C/C++ - with syntax inspired from (you gues
 
 Oh and the name *Vero* comes from the Italian word for **true**. The idea was for this to be a *true and honest language* - if the syntax looks simple, the language should be as well! There is absolutely 0 hidden complexity - the language is exactly what it looks like!
 
-<img src="https://github.com/user-attachments/assets/3c468df3-e037-4b69-834e-396102c689aa" alt="example">
+<img width="959" alt="example" src="https://github.com/user-attachments/assets/29e8943c-2a03-4f36-9783-967d40a8a326" />
+
 
 ## :question: How to run?
 There are two ways to run the language:
