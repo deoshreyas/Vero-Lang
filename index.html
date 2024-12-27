@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <title>The Vero Language</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/material-darker.min.css" integrity="sha512-2OhXH4Il3n2tHKwLLSDPhrkgnLBC+6lHGGQzSFi3chgVB6DJ/v6+nbx+XYO9CugQyHVF/8D/0k3Hx1eaUK2K9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #121212;
+        }
+
+        #run-button {
+            background-color: rgb(26, 118, 58);
+            font-family: monospace;
+            font-size: 1.75em;
+            color: white;
+            border: none;
+            padding: 0.1em 1em;
+            margin-left: 50%;
+            transform: translateX(-50%);
+            margin-top: 1em;
+            cursor: pointer;
+        }
+
+        #download-button {
+            background-color: rgb(0, 81, 255);
+            font-family: monospace;
+            font-size: 1.75em;
+            color: white;
+            border: none;
+            padding: 0.1em 1em;
+            margin-left: 50%;
+            transform: translateX(-50%);
+            margin-top: 1em;
+            cursor: pointer;
+        }
+
+        .CodeMirror {
+            border: 1px solid #d5d5d5;
+            font-size: 16px;
+            height: 60vh;
+        }
+
+        .editor-container {
+            margin: 10px 0;
+            width: 48%;
+            transform: translateX(0%);
+        }
+
+        .flex {
+            display: flex;
+            justify-content: space-around;
+            flex-direction: row;
+        }
+
+        @media (max-width: 800px) {
+            .flex {
+                flex-direction: column;
+            }
+
+            .CodeMirror {
+                height: 50vh;
+            }
+
+            .editor-container {
+                width: 95%;
+                margin-left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-top: 1em;
+            font-family: monospace, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vero Online Interpreter</h1>
+
+    <div class="flex">
+        <div class="editor-container">
+            <textarea id="input">print("Hello world!")</textarea>
+        </div>
+        <div class="editor-container">
+            <textarea id="output">Hello world!</textarea>
+        </div>
+    </div>
+
+    <button id="run-button">Run &#9654;</button>
+    <button id="download-button" onclick="downloadVeroCode()">Download &#11015;</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js" integrity="sha512-tsjcYO5hFvViRssxiM7Jhd8601epWOx1He3Hl4yuI5dKKPxr43KxkOhc9GZeeqzlYJm9ABb7UPA9697NiqZZ7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/mode/simple.min.js" integrity="sha512-CGM6DWPHs250F/m90YZ9NEiEUhd9a4+u8wAzeKC6uHzZbYyt9/e2dLC5BGGB6Y0HtEdZQdSDYjDsoTyNGdMrMA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // Initialize WebAssembly module
+        let outputBuffer = '';
+    
+        var Module = {
+            onRuntimeInitialized: function() {
+                console.log('WASM Runtime Initialized');
+                // Initialize global symbol table
+                Module.ccall('init_global_symbol_table', null, [], []);
+            },
+            print: function(text) {
+                outputBuffer += text + '\n';
+                document.getElementById('output').value = outputBuffer;
+            }
+        };
+
+        // Vero Language Support
+        CodeMirror.defineSimpleMode("vero", {
+            // Syntax token rules
+            start: [
+                {regex: /\b(?:if|else|elif|step|while|return|func|let|to|and|or|not|for)\b/, token: "keyword"},
+                {regex: /\b\d+\b/, token: "number"},
+                {regex: /"([^"\\]|\\.)*"?/, token: "string"},
+                {regex: /^#.*/, token: "comment"},
+                {regex: /[+\-*/=<>!]+/, token: "operator"},
+                {regex: /[\{\}\[\]\(\)]/, token: "bracket"},
+            ],
+            // Allow nested states if needed
+            meta: {
+                lineComment: "#"
+            }
+        });
+        
+        CodeMirror.registerHelper("hint", "vero", function(editor) {
+            const cursor = editor.getCursor();
+            const token = editor.getTokenAt(cursor);
+            const keywords = ["if", "else", "elif", "while", "step", "return", "func", "break", "continue", "let", "to", "and", "or", "not"];
+            const suggestions = keywords.filter(keyword => keyword.startsWith(token.string));
+            return {
+                list: suggestions,
+                from: CodeMirror.Pos(cursor.line, token.start),
+                to: CodeMirror.Pos(cursor.line, token.end)
+            };
+        });
+
+        // Input
+        const inputEditor = CodeMirror.fromTextArea(document.getElementById('input'), {
+            lineNumbers: true,
+            mode: "vero",
+            theme: "material-darker",
+            autoCloseBrackets: true,
+            lineWrapping: true,
+            hintOptions: {hint: CodeMirror.hint.vero}
+        });
+
+        // Output
+        const outputEditor = CodeMirror.fromTextArea(document.getElementById('output'), {
+            lineNumbers: true,
+            mode: "javascript",
+            theme: "material-darker",
+            readOnly: true,
+            lineWrapping: true,
+            lineNumbers: false
+        });
+
+        // Add event listener to the button
+        document.getElementById('run-button').addEventListener('click', function() {
+            const code = inputEditor.getValue();
+
+            outputBuffer = ''; // Clear buffer
+
+            try {
+                const result = Module.ccall(
+                    'run_script',
+                    'string',
+                    ['string'],
+                    [code]
+                );
+                // Only show error output if it exists
+                if (result && !result.includes('null')) {
+                    outputEditor.setValue(outputBuffer + result);
+                } else {
+                    outputEditor.setValue(outputBuffer);
+                }
+            } catch (e) {
+                outputEditor.setValue("Error: " + e.message);
+            }
+        });
+
+        // Function to dowload the code
+        function downloadVeroCode() {
+            const code = inputEditor.getValue();
+            const blob = new Blob([code], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'code.vero';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
+    </script>
+    <script src="vero.js"></script>
+</body>
+</html>
