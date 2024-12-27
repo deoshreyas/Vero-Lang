@@ -16,4 +16,4 @@ There are two ways to run the language:
 If you couldn't already tell - this is a hobby project! It is not meant to be taken seriously - I made it for the sole purpose of furthering my understanding. You should probably not use it for any serious projects. 
 
 ## :closed_book: Syntax Documentation
-Inspired by the simplicity of C++ braces ({...}), the optional nature of semicolons in JavaScript (;), and the overall ease of usage of Python! Click [here](https://github.com/deoshreyas/Vero-Lang/blob/main/SYNTAX.md) for the syntax documentation.
+Inspired by the simplicity of C++ braces ({...}), the optional nature of semicolons in JavaScript (;), and the overall ease of usage of Python! Click [here](deoshreyas.github.io/Vero-Lang/docs.html) for the syntax documentation.

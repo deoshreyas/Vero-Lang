@@ -19,8 +19,8 @@
             color: white;
             border: none;
             padding: 0.1em 1em;
-            margin-left: 50%;
-            transform: translateX(-50%);
+            margin-left: 0;
+            transform: translateX(0);
             margin-top: 1em;
             cursor: pointer;
         }
@@ -32,8 +32,21 @@
             color: white;
             border: none;
             padding: 0.1em 1em;
-            margin-left: 50%;
-            transform: translateX(-50%);
+            margin-left: 0;
+            transform: translateX(0);
+            margin-top: 1em;
+            cursor: pointer;
+        }
+
+        #syntax-button {
+            background-color: rgb(255, 60, 60);
+            font-family: monospace;
+            font-size: 1.75em;
+            color: white;
+            border: none;
+            padding: 0.1em 1em;
+            margin-left: 0;
+            transform: translateX(0);
             margin-top: 1em;
             cursor: pointer;
         }
@@ -56,9 +69,30 @@
             flex-direction: row;
         }
 
+        .buttons-flex {
+            width: 80%;
+            margin-left: 0;
+            display: flex;
+            justify-content: space-evenly;
+            flex-direction: row;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+
         @media (max-width: 800px) {
             .flex {
                 flex-direction: column;
+            }
+
+            .buttons-flex {
+                flex-direction: column;
+                width: 90%;
+            }
+
+            .buttons-flex button {
+                width: 80%;
+                margin-left: 50% !important;
+                transform: translateX(-50%) !important;
             }
 
             .CodeMirror {
@@ -93,8 +127,11 @@
         </div>
     </div>
 
-    <button id="run-button">Run &#9654;</button>
-    <button id="download-button" onclick="downloadVeroCode()">Download &#11015;</button>
+    <div class="buttons-flex">
+        <button id="run-button">Run &#9654;</button>
+        <button id="download-button" onclick="downloadVeroCode()">Download &#11015;</button>
+        <button id="syntax-button" onclick="window.location.href='deoshreyas.github.io/Vero-Lang/docs.html'">Syntax</button>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/edit/closebrackets.min.js" integrity="sha512-tsjcYO5hFvViRssxiM7Jhd8601epWOx1He3Hl4yuI5dKKPxr43KxkOhc9GZeeqzlYJm9ABb7UPA9697NiqZZ7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

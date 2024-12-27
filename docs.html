@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        #content {
+            padding: 2rem;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        a {
+            color: #1e90ff;
+        }
+
+        code {
+            background-color: #333;
+            color: #fff;
+            /* padding: 0.4rem; */
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <p>Loading documentation...</p>
+    </div>
+    <script type="module">
+        import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+        async function fetchMarkdown() {
+            const contentElement = document.getElementById('content');
+            const githubURL = 'https://raw.githubusercontent.com/deoshreyas/Vero-Lang/main/SYNTAX.md';
+
+            try {
+                const response = await fetch(githubURL);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch the README.md file');
+                }
+
+                const markdown = await response.text();
+                renderMarkdown(markdown);
+            } catch (error) {
+                contentElement.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        async function renderMarkdown(markdown) {
+            const contentElement = document.getElementById('content');
+            contentElement.innerHTML = marked(markdown);
+        }
+
+        window.onload = fetchMarkdown;
+    </script>
+</body>
+</html>
